@@ -167,3 +167,47 @@ Chú thích: Thêm các chú thích (comments) rõ ràng cho các phương thứ
 Thiết kế giao diện người dùng sạch sẽ, dễ sử dụng.
 
 Bạn có thể sử dụng một CSS framework như Bootstrap (tải từ CDN) để làm cho giao diện trông chuyên nghiệp và đáp ứng tốt trên nhiều thiết bị (responsive).
+
+## Cấu trúc dự án
+
+```
+Cinema/
+├── database/
+│   └── schema.sql
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/cinema/
+│       │       ├── dao/
+│       │       ├── filter/
+│       │       ├── model/
+│       │       ├── servlet/
+│       │       └── util/
+│       └── webapp/
+│           ├── WEB-INF/web.xml
+│           ├── Main.jsp
+│           ├── MainManager.jsp
+│           ├── ManageShowtime.jsp
+│           ├── MovieDetail.jsp
+│           ├── ScheduleShowtime.jsp
+│           ├── SearchMovie.jsp
+│           ├── error.jsp
+│           ├── index.jsp
+│           └── login.jsp
+```
+
+## Thiết lập môi trường
+1. Cài đặt JDK 21 và Apache Tomcat 10 trở lên.
+2. Cài đặt MySQL và khởi tạo CSDL bằng script `database/schema.sql`.
+3. Cập nhật biến môi trường `CINEMA_DB_URL`, `CINEMA_DB_USER`, `CINEMA_DB_PASSWORD` nếu cần.
+4. Đưa thư mục `src/main/webapp` và `src/main/java` vào một dự án WAR (Maven hoặc IDE).
+5. Triển khai lên Tomcat và truy cập `http://localhost:8080/Cinema/login.jsp`.
+
+## Tài khoản mẫu
+- Quản lý: `manager` / `manager123`
+- Nhân viên bán vé: `cashier` / `cashier123`
+- Khách hàng: `customer` / `customer123`
+
+## Kiểm thử kịch bản
+- **Tìm kiếm phim:** Đăng nhập với tài khoản khách hàng, mở `SearchMovie.jsp`, nhập từ khóa và xác minh kết quả cùng trang chi tiết.
+- **Lên lịch chiếu:** Đăng nhập với tài khoản quản lý, vào "Quản lý lịch chiếu", tạo lịch mới tại trang "Lên lịch chiếu".
