@@ -1,9 +1,11 @@
+/Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/dao/GenreDAO.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/dao/MovieDAO.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/dao/RoomDAO.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/dao/ShowtimeDAO.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/dao/UserDAO.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/filter/ManagerAuthorizationFilter.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/model/Cinema.java
+/Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/model/Genre.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/model/MembershipCard.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/model/Movie.java
 /Users/promex04/Documents/pttkhtt/cinema/src/main/java/com/cinema/model/Order.java

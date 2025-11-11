@@ -2,6 +2,9 @@ package com.cinema.model;
 
 import java.util.Date;
 
+import lombok.Data;
+
+@Data
 public class MembershipCard {
     private int id;
     private String cardNumber;
@@ -19,44 +22,5 @@ public class MembershipCard {
         this.status = status;
         this.user = user;
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getCardNumber() {
-        return cardNumber;
-    }
-
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
-    }
-
-    public Date getIssueAt() {
-        return issueAt;
-    }
-
-    public void setIssueAt(Date issueAt) {
-        this.issueAt = issueAt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+    
 }

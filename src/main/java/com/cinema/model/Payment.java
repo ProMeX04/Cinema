@@ -2,6 +2,9 @@ package com.cinema.model;
 
 import java.util.Date;
 
+import lombok.Data;
+
+@Data
 public class Payment {
     private int id;
     private String method;
@@ -21,52 +24,5 @@ public class Payment {
         this.status = status;
         this.order = order;
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public Date getPaidAt() {
-        return paidAt;
-    }
-
-    public void setPaidAt(Date paidAt) {
-        this.paidAt = paidAt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
+    
 }
