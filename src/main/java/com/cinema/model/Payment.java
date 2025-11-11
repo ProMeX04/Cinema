@@ -2,9 +2,6 @@ package com.cinema.model;
 
 import java.util.Date;
 
-/**
- * Represents a payment for an order.
- */
 public class Payment {
     private int id;
     private String method;

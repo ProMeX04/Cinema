@@ -2,9 +2,6 @@ package com.cinema.model;
 
 import java.util.Date;
 
-/**
- * Represents a membership card issued to a customer.
- */
 public class MembershipCard {
     private int id;
     private String cardNumber;

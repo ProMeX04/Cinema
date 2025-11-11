@@ -1,8 +1,5 @@
 package com.cinema.model;
 
-/**
- * Represents a physical screening room in the cinema.
- */
 public class Room {
     private int id;
     private String name;

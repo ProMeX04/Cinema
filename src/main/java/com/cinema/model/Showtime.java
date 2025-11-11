@@ -2,9 +2,6 @@ package com.cinema.model;
 
 import java.util.Date;
 
-/**
- * Represents a scheduled movie showtime.
- */
 public class Showtime {
     private int id;
     private Date startTime;

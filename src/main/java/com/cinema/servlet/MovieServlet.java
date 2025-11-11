@@ -13,9 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-/**
- * Controller responsible for movie-related operations including search and detail retrieval.
- */
 @WebServlet(name = "MovieServlet", urlPatterns = {"/movies"})
 public class MovieServlet extends HttpServlet {
 
@@ -42,7 +39,6 @@ public class MovieServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // The search form submits using POST for better keyword privacy.
         handleSearch(request, response);
     }
 

@@ -1,8 +1,5 @@
 package com.cinema.model;
 
-/**
- * Represents a user account in the cinema management system.
- */
 public class User {
     private int id;
     private String fullName;

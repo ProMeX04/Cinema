@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Handles database interaction for showtime operations.
- */
 public class ShowtimeDAO {
 
     private static final String SELECT_CURRENT =
@@ -52,14 +49,6 @@ public class ShowtimeDAO {
             "SELECT COUNT(*) FROM ShowTime WHERE RoomId = ? AND status != 'Cancelled' " +
                     "AND NOT (endTime <= ? OR startTime >= ?)";
 
-    /**
-     * Checks if a room is available for a given time slot.
-     *
-     * @param roomId room identifier
-     * @param startTime start time of the showtime
-     * @param endTime end time of the showtime
-     * @return true if room is available, false otherwise
-     */
     public boolean isRoomAvailable(int roomId, Date startTime, Date endTime) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -85,11 +74,6 @@ public class ShowtimeDAO {
         return false;
     }
 
-    /**
-     * Loads current and upcoming showtimes with their movie and room metadata.
-     *
-     * @return list of showtimes
-     */
     public List<Showtime> findCurrentShowtime() {
         List<Showtime> showtimes = new ArrayList<>();
         Connection connection = null;
@@ -111,11 +95,6 @@ public class ShowtimeDAO {
         return showtimes;
     }
 
-    /**
-     * Finds rooms that are available to be scheduled.
-     *
-     * @return list of available rooms
-     */
     public List<Room> findAvailableRoom() {
         List<Room> rooms = new ArrayList<>();
         Connection connection = null;
@@ -137,12 +116,6 @@ public class ShowtimeDAO {
         return rooms;
     }
 
-    /**
-     * Persists a new showtime in the database.
-     *
-     * @param showtime showtime to save
-     * @return generated identifier
-     */
     public int save(Showtime showtime) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -190,7 +163,6 @@ public class ShowtimeDAO {
         movie.setPoster(rs.getString("movie_poster"));
         movie.setDuration(rs.getDouble("movie_duration"));
         
-        // Load genres for this movie
         List<Genre> genres = genreDAO.findByMovieId(movie.getId());
         movie.setGenres(genres);
         

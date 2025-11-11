@@ -1,8 +1,5 @@
 package com.cinema.model;
 
-/**
- * Represents a seat in a room.
- */
 public class Seat {
     private int id;
     private String position;

@@ -4,13 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * Utility class responsible for creating JDBC connections to the Cinema
- * database.
- * The values are intentionally configurable through environment variables to
- * make the
- * application easy to deploy on different environments without recompilation.
- */
 public final class DBConnection {
 
     private static final String URL = System.getenv().getOrDefault("CINEMA_DB_URL",
@@ -21,14 +14,7 @@ public final class DBConnection {
     private DBConnection() {
     }
 
-    /**
-     * Opens and returns a new JDBC connection using the configured credentials.
-     *
-     * @return an active {@link Connection}
-     * @throws SQLException if the driver cannot establish a connection
-     */
     public static Connection getConnection() throws SQLException {
-        // Do not log credentials. Use environment variables to configure DB access.
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }

@@ -1,8 +1,5 @@
 package com.cinema.model;
 
-/**
- * Represents a movie genre.
- */
 public class Genre {
     private int id;
     private String name;

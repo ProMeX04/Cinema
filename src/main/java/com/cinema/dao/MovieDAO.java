@@ -11,18 +11,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Data access layer for the {@link Movie} entity.
- */
 public class MovieDAO {
 
-    private static final String BASE_SELECT =
-            "SELECT id, title, description, duration, rating, releaseDate, status, poster, trailer, language FROM Movie";
+    private static final String BASE_SELECT = "SELECT id, title, description, duration, rating, releaseDate, status, poster, trailer, language FROM Movie";
     private static final String SELECT_BY_TITLE = BASE_SELECT + " WHERE title LIKE ?";
     private static final String SELECT_BY_ID = BASE_SELECT + " WHERE id = ?";
     private static final String SELECT_ALL = BASE_SELECT + " ORDER BY releaseDate DESC";
     private static final String SELECT_NOW_SHOWING = BASE_SELECT +
             " WHERE status IN ('Now Showing', 'Đang chiếu', 'Đang Chiếu') ORDER BY releaseDate DESC";
+
+    private static final String INSERT_MOVIE_GENRE = "INSERT INTO Movie_Genre (MovieId, GenreId) VALUES (?, ?)";
+    private static final String DELETE_MOVIE_GENRE = "DELETE FROM Movie_Genre WHERE MovieId = ? AND GenreId = ?";
+    private static final String DELETE_ALL_MOVIE_GENRES = "DELETE FROM Movie_Genre WHERE MovieId = ?";
 
     private GenreDAO genreDAO;
 
@@ -30,12 +30,6 @@ public class MovieDAO {
         this.genreDAO = new GenreDAO();
     }
 
-    /**
-     * Finds movies whose title contains the provided keyword.
-     *
-     * @param keyword keyword provided by the user
-     * @return list of matching movies
-     */
     public List<Movie> findMovieByTitle(String keyword) {
         List<Movie> movies = new ArrayList<>();
         Connection connection = null;
@@ -58,12 +52,6 @@ public class MovieDAO {
         return movies;
     }
 
-    /**
-     * Retrieves a movie by its identifier.
-     *
-     * @param id movie identifier
-     * @return movie or null if not found
-     */
     public Movie getMovieById(int id) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -85,11 +73,6 @@ public class MovieDAO {
         return null;
     }
 
-    /**
-     * Retrieves all movies in the catalogue.
-     *
-     * @return list of all movies
-     */
     public List<Movie> findAllMovie() {
         List<Movie> movies = new ArrayList<>();
         Connection connection = null;
@@ -111,11 +94,6 @@ public class MovieDAO {
         return movies;
     }
 
-    /**
-     * Retrieves all movies currently marked as now showing.
-     *
-     * @return list of movies currently showing
-     */
     public List<Movie> findMovieNowShowing() {
         List<Movie> movies = new ArrayList<>();
         Connection connection = null;
@@ -137,6 +115,89 @@ public class MovieDAO {
         return movies;
     }
 
+    public boolean addGenreToMovie(int movieId, int genreId) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            connection = DBConnection.getConnection();
+            statement = connection.prepareStatement(INSERT_MOVIE_GENRE);
+            statement.setInt(1, movieId);
+            statement.setInt(2, genreId);
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Không thể thêm thể loại cho phim", ex);
+        } finally {
+            closeResources(null, statement, connection);
+        }
+    }
+
+    public boolean removeGenreFromMovie(int movieId, int genreId) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            connection = DBConnection.getConnection();
+            statement = connection.prepareStatement(DELETE_MOVIE_GENRE);
+            statement.setInt(1, movieId);
+            statement.setInt(2, genreId);
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Không thể xóa thể loại khỏi phim", ex);
+        } finally {
+            closeResources(null, statement, connection);
+        }
+    }
+
+    public boolean updateMovieGenres(int movieId, List<Integer> genreIds) {
+        Connection connection = null;
+        PreparedStatement deleteStatement = null;
+        PreparedStatement insertStatement = null;
+
+        try {
+            connection = DBConnection.getConnection();
+            connection.setAutoCommit(false);
+
+            deleteStatement = connection.prepareStatement(DELETE_ALL_MOVIE_GENRES);
+            deleteStatement.setInt(1, movieId);
+            deleteStatement.executeUpdate();
+
+            if (genreIds != null && !genreIds.isEmpty()) {
+                insertStatement = connection.prepareStatement(INSERT_MOVIE_GENRE);
+                for (Integer genreId : genreIds) {
+                    insertStatement.setInt(1, movieId);
+                    insertStatement.setInt(2, genreId);
+                    insertStatement.addBatch();
+                }
+                insertStatement.executeBatch();
+            }
+
+            connection.commit();
+            return true;
+        } catch (SQLException ex) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException rollbackEx) {
+                throw new RuntimeException("Không thể rollback transaction", rollbackEx);
+            }
+            throw new RuntimeException("Không thể cập nhật thể loại cho phim", ex);
+        } finally {
+            closeResources(null, deleteStatement, null);
+            closeResources(null, insertStatement, null);
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true);
+                    connection.close();
+                } catch (SQLException ignored) {
+                }
+            }
+        }
+    }
+
     private Movie mapMovie(ResultSet rs) throws SQLException {
         Movie movie = new Movie();
         movie.setId(rs.getInt("id"));
@@ -152,11 +213,10 @@ public class MovieDAO {
         movie.setPoster(rs.getString("poster"));
         movie.setTrailer(rs.getString("trailer"));
         movie.setLanguage(rs.getString("language"));
-        
-        // Load genres for this movie
+
         List<Genre> genres = genreDAO.findByMovieId(movie.getId());
         movie.setGenres(genres);
-        
+
         return movie;
     }
 

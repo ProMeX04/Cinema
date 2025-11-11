@@ -20,9 +20,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 
-/**
- * Controller orchestrating showtime management scenarios for managers.
- */
 @WebServlet(name = "ShowtimeServlet", urlPatterns = {"/showtimes"})
 public class ShowtimeServlet extends HttpServlet {
 
@@ -95,7 +92,6 @@ public class ShowtimeServlet extends HttpServlet {
             int roomId = Integer.parseInt(request.getParameter("roomId"));
             int movieId = Integer.parseInt(request.getParameter("movieId"));
 
-            // Validate time range
             if (endTime.isBefore(startTime) || endTime.equals(startTime)) {
                 request.setAttribute("errorMessage", "Giờ kết thúc phải sau giờ bắt đầu.");
                 prepareSchedule(request, response);
@@ -114,7 +110,6 @@ public class ShowtimeServlet extends HttpServlet {
             java.util.Date startDate = java.util.Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
             java.util.Date endDate = java.util.Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
             
-            // Check if room is available
             if (!showtimeDAO.isRoomAvailable(roomId, startDate, endDate)) {
                 request.setAttribute("errorMessage", "Phòng đã được đặt trong khung giờ này. Vui lòng chọn phòng hoặc khung giờ khác.");
                 prepareSchedule(request, response);

@@ -10,9 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Data access layer for the {@link Genre} entity.
- */
 public class GenreDAO {
 
     private static final String SELECT_ALL = "SELECT id, name, description FROM Genre ORDER BY name";
@@ -22,11 +19,6 @@ public class GenreDAO {
             "INNER JOIN Movie_Genre mg ON g.id = mg.GenreId " +
             "WHERE mg.MovieId = ? ORDER BY g.name";
 
-    /**
-     * Lấy tất cả các thể loại.
-     *
-     * @return danh sách tất cả thể loại
-     */
     public List<Genre> findAll() {
         List<Genre> genres = new ArrayList<>();
         Connection connection = null;
@@ -48,12 +40,6 @@ public class GenreDAO {
         return genres;
     }
 
-    /**
-     * Lấy thể loại theo ID.
-     *
-     * @param id ID của thể loại
-     * @return thể loại hoặc null nếu không tìm thấy
-     */
     public Genre findById(int id) {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -75,12 +61,6 @@ public class GenreDAO {
         return null;
     }
 
-    /**
-     * Lấy tất cả thể loại của một phim.
-     *
-     * @param movieId ID của phim
-     * @return danh sách thể loại của phim
-     */
     public List<Genre> findByMovieId(int movieId) {
         List<Genre> genres = new ArrayList<>();
         Connection connection = null;

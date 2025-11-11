@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Represents a movie that can be displayed in the cinema system.
- */
 public class Movie {
     private int id;
     private String title;
@@ -120,19 +117,12 @@ public class Movie {
         this.genres = genres != null ? genres : new ArrayList<>();
     }
 
-    /**
-     * Thêm một thể loại vào danh sách thể loại của phim.
-     */
     public void addGenre(Genre genre) {
         if (genre != null && !this.genres.contains(genre)) {
             this.genres.add(genre);
         }
     }
 
-    /**
-     * Lấy danh sách tên thể loại dưới dạng chuỗi, cách nhau bởi dấu phẩy.
-     * Hữu ích cho việc hiển thị trong JSP.
-     */
     public String getGenresAsString() {
         if (genres == null || genres.isEmpty()) {
             return "";

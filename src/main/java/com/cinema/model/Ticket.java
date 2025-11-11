@@ -1,8 +1,5 @@
 package com.cinema.model;
 
-/**
- * Represents a ticket purchased by a customer.
- */
 public class Ticket {
     private int id;
     private double price;

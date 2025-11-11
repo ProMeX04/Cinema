@@ -14,14 +14,10 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-/**
- * Filter that restricts access to manager-only pages.
- */
 public class ManagerAuthorizationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-        // No initialization required
     }
 
     @Override
@@ -42,6 +38,5 @@ public class ManagerAuthorizationFilter implements Filter {
 
     @Override
     public void destroy() {
-        // No resources to release
     }
 }

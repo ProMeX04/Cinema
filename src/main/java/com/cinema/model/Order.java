@@ -2,9 +2,6 @@ package com.cinema.model;
 
 import java.util.Date;
 
-/**
- * Represents a customer's order.
- */
 public class Order {
     private int id;
     private Date orderTime;

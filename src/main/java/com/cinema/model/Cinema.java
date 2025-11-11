@@ -1,8 +1,5 @@
 package com.cinema.model;
 
-/**
- * Represents a cinema branch.
- */
 public class Cinema {
     private int id;
     private String name;

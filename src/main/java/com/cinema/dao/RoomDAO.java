@@ -11,9 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO encapsulating access to the Room table.
- */
 public class RoomDAO {
 
     private static final String SELECT_ALL =
@@ -21,11 +18,6 @@ public class RoomDAO {
                     "c.id AS cinema_id, c.name AS cinema_name, c.address AS cinema_address, c.description AS cinema_description " +
                     "FROM Room r JOIN Cinema c ON r.CinemaId = c.id ORDER BY r.name";
 
-    /**
-     * Retrieves all rooms together with their cinema metadata.
-     *
-     * @return list of rooms
-     */
     public List<Room> findAll() {
         List<Room> rooms = new ArrayList<>();
         Connection connection = null;

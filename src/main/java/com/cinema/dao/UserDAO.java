@@ -8,21 +8,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * DAO for user authentication and retrieval.
- */
 public class UserDAO {
 
     private static final String SELECT_BY_USERNAME_PASSWORD = "SELECT id, fullName, username, password, email, phone, role, note "
             + "FROM User WHERE username = ? AND password = ?";
 
-    /**
-     * Attempts to authenticate a user by username and password.
-     *
-     * @param username username provided
-     * @param password password provided
-     * @return user if credentials are valid, otherwise null
-     */
     public User authenticate(String username, String password) {
         Connection connection = null;
         PreparedStatement statement = null;
