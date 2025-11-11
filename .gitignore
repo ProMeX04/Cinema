@@ -1,7 +1,7 @@
-/report/
-/database/
-.vscode/
-.idea/
+report/*
+database/*
+.vscode/*
+.idea/*
 .env
-/src/target/
+src/target/*
 .DS_Store
