@@ -94,7 +94,7 @@ public class MovieDAO {
         return movies;
     }
 
-    public List<Movie> findMovieNowShowing() {
+    public List<Movie> getMovieNowShowing() {
         List<Movie> movies = new ArrayList<>();
         Connection connection = null;
         PreparedStatement statement = null;
@@ -113,6 +113,11 @@ public class MovieDAO {
             closeResources(resultSet, statement, connection);
         }
         return movies;
+    }
+
+    // Alias method để tương thích với code cũ
+    public List<Movie> findMovieNowShowing() {
+        return getMovieNowShowing();
     }
 
     public boolean addGenreToMovie(int movieId, int genreId) {

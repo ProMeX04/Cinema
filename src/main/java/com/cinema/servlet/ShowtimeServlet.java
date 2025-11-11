@@ -20,14 +20,15 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 
-@WebServlet(name = "ShowtimeServlet", urlPatterns = {"/showtimes"})
+@WebServlet(name = "ShowtimeServlet", urlPatterns = { "/showtimes" })
 public class ShowtimeServlet extends HttpServlet {
 
     private final ShowtimeDAO showtimeDAO = new ShowtimeDAO();
     private final MovieDAO movieDAO = new MovieDAO();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
@@ -35,7 +36,7 @@ public class ShowtimeServlet extends HttpServlet {
 
         switch (action) {
             case "availableRooms":
-                handleAvailableRooms(response);
+                handleAvailableRooms(request, response);
                 break;
             case "prepare":
                 prepareSchedule(request, response);
@@ -46,7 +47,8 @@ public class ShowtimeServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action == null || action.equals("create")) {
             createShowtime(request, response);
@@ -55,20 +57,36 @@ public class ShowtimeServlet extends HttpServlet {
         }
     }
 
-    private void listShowtimes(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void listShowtimes(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         List<Showtime> showtimes = showtimeDAO.findCurrentShowtime();
         request.setAttribute("showtimes", showtimes);
-        request.getRequestDispatcher("/ManageShowtime.jsp").forward(request, response);
+        // Nếu được include từ JSP (có parameter include=true) thì không forward
+        if (request.getParameter("include") == null) {
+            request.getRequestDispatcher("/ManageShowtime.jsp").forward(request, response);
+        }
     }
 
-    private void prepareSchedule(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("moviesNowShowing", movieDAO.findMovieNowShowing());
-        request.setAttribute("availableRooms", showtimeDAO.findAvailableRoom());
-        request.getRequestDispatcher("/ScheduleShowtime.jsp").forward(request, response);
+    private void prepareSchedule(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setAttribute("moviesNowShowing", movieDAO.getMovieNowShowing());
+        request.setAttribute("availableRooms", showtimeDAO.findRoomAvailable());
+        // Nếu được include từ JSP (có parameter include=true) thì không forward
+        if (request.getParameter("include") == null) {
+            request.getRequestDispatcher("/ScheduleShowtime.jsp").forward(request, response);
+        }
     }
 
-    private void handleAvailableRooms(HttpServletResponse response) throws IOException {
-        List<Room> rooms = showtimeDAO.findAvailableRoom();
+    private void handleAvailableRooms(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<Room> rooms = showtimeDAO.findRoomAvailable();
+
+        // Nếu được include từ JSP thì set attribute, không trả về JSON
+        if (request.getParameter("include") != null) {
+            request.setAttribute("availableRooms", rooms);
+            return;
+        }
+
+        // Nếu không phải include thì trả về JSON
         response.setContentType("application/json;charset=UTF-8");
         try (PrintWriter writer = response.getWriter()) {
             writer.write("[");
@@ -84,7 +102,8 @@ public class ShowtimeServlet extends HttpServlet {
         }
     }
 
-    private void createShowtime(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void createShowtime(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         try {
             LocalDate date = LocalDate.parse(request.getParameter("showDate"));
             LocalTime startTime = LocalTime.parse(request.getParameter("startTime"));
@@ -109,9 +128,10 @@ public class ShowtimeServlet extends HttpServlet {
             LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
             java.util.Date startDate = java.util.Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
             java.util.Date endDate = java.util.Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
-            
+
             if (!showtimeDAO.isRoomAvailable(roomId, startDate, endDate)) {
-                request.setAttribute("errorMessage", "Phòng đã được đặt trong khung giờ này. Vui lòng chọn phòng hoặc khung giờ khác.");
+                request.setAttribute("errorMessage",
+                        "Phòng đã được đặt trong khung giờ này. Vui lòng chọn phòng hoặc khung giờ khác.");
                 prepareSchedule(request, response);
                 return;
             }

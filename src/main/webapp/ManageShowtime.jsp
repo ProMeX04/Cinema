@@ -1,6 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%
+    // Gọi ShowtimeServlet để lấy dữ liệu lịch chiếu
+    // ShowtimeServlet sẽ gọi ShowtimeDAO.findCurrentShowtime()
+    request.getRequestDispatcher("/showtimes?include=true").include(request, response);
+%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,7 +28,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="MainManager.jsp"><i class="fas fa-home me-1"></i>Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link active" href="showtimes"><i class="fas fa-calendar-alt me-1"></i>Quản lý lịch chiếu</a></li>
+                <li class="nav-item"><a class="nav-link active" href="ManageShowtime.jsp"><i class="fas fa-calendar-alt me-1"></i>Quản lý lịch chiếu</a></li>
             </ul>
             <form class="d-flex" method="post" action="auth">
                 <input type="hidden" name="action" value="logout">
@@ -40,7 +45,7 @@
         <h1 class="page-title mb-0" style="text-align: left;">
             <i class="fas fa-calendar-alt me-2"></i>Lịch Chiếu Hiện Tại
         </h1>
-        <a href="showtimes?action=prepare" class="btn btn-cinema-primary">
+        <a href="ScheduleShowtime.jsp" class="btn btn-cinema-primary">
             <i class="fas fa-plus-circle me-1"></i>Thêm Mới Lịch Chiếu
         </a>
     </div>
@@ -107,7 +112,7 @@
                             </div>
                             <h4 style="color: var(--cinema-text-light);">Hiện chưa có lịch chiếu nào</h4>
                             <p style="color: var(--cinema-text-light);">Hãy tạo lịch chiếu mới để bắt đầu</p>
-                            <a href="showtimes?action=prepare" class="btn btn-cinema-primary mt-3">
+                            <a href="ScheduleShowtime.jsp" class="btn btn-cinema-primary mt-3">
                                 <i class="fas fa-plus-circle me-1"></i>Tạo Lịch Chiếu Đầu Tiên
                             </a>
                         </td>

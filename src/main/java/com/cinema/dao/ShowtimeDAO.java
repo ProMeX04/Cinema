@@ -95,7 +95,7 @@ public class ShowtimeDAO {
         return showtimes;
     }
 
-    public List<Room> findAvailableRoom() {
+    public List<Room> findRoomAvailable() {
         List<Room> rooms = new ArrayList<>();
         Connection connection = null;
         PreparedStatement statement = null;
@@ -114,6 +114,11 @@ public class ShowtimeDAO {
             closeResources(resultSet, statement, connection);
         }
         return rooms;
+    }
+    
+    // Alias method để tương thích với code cũ
+    public List<Room> findAvailableRoom() {
+        return findRoomAvailable();
     }
 
     public int save(Showtime showtime) {

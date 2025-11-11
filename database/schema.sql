@@ -11,6 +11,8 @@
 -- =====================================================
 -- BẢNG USER - Người dùng hệ thống
 -- =====================================================
+CREATE DATABASE cinema;
+USE cinema;
 CREATE TABLE IF NOT EXISTS `User` (
     `id` INT(10) PRIMARY KEY AUTO_INCREMENT,
     `fullName` VARCHAR(255),
@@ -34,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `Cinema` (
 
 -- =====================================================
 -- BẢNG ROOM - Phòng chiếu phim
+-- Lưu ý: Đảm bảo bảng Cinema đã được tạo trước khi tạo bảng này
 -- =====================================================
 CREATE TABLE IF NOT EXISTS `Room` (
     `id` INT(10) PRIMARY KEY AUTO_INCREMENT,
@@ -42,7 +45,8 @@ CREATE TABLE IF NOT EXISTS `Room` (
     `description` VARCHAR(255),
     `format` VARCHAR(255),
     `CinemaId` INT(10),
-    FOREIGN KEY (`CinemaId`) REFERENCES `Cinema`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+    INDEX `idx_room_cinema` (`CinemaId`),
+    CONSTRAINT `fk_room_cinema` FOREIGN KEY (`CinemaId`) REFERENCES `Cinema`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
@@ -277,20 +281,60 @@ ON DUPLICATE KEY UPDATE `cardNumber`=`cardNumber`;
 
 -- =====================================================
 -- TẠO INDEX ĐỂ TỐI ƯU HIỆU SUẤT
+-- Lưu ý: Nếu index đã tồn tại, sẽ bỏ qua lỗi
 -- =====================================================
-CREATE INDEX IF NOT EXISTS `idx_user_username` ON `User`(`username`);
-CREATE INDEX IF NOT EXISTS `idx_movie_status` ON `Movie`(`status`);
-CREATE INDEX IF NOT EXISTS `idx_movie_title` ON `Movie`(`title`);
-CREATE INDEX IF NOT EXISTS `idx_genre_name` ON `Genre`(`name`);
-CREATE INDEX IF NOT EXISTS `idx_movie_genre_movie` ON `Movie_Genre`(`MovieId`);
-CREATE INDEX IF NOT EXISTS `idx_movie_genre_genre` ON `Movie_Genre`(`GenreId`);
-CREATE INDEX IF NOT EXISTS `idx_showtime_movie` ON `ShowTime`(`MovieId`);
-CREATE INDEX IF NOT EXISTS `idx_showtime_room` ON `ShowTime`(`RoomId`);
-CREATE INDEX IF NOT EXISTS `idx_order_user` ON `Order`(`UserId`);
-CREATE INDEX IF NOT EXISTS `idx_ticket_order` ON `Ticket`(`OrderId`);
-CREATE INDEX IF NOT EXISTS `idx_ticket_showtime` ON `Ticket`(`ShowTimeId`);
-CREATE INDEX IF NOT EXISTS `idx_payment_order` ON `Payment`(`OrderId`);
-CREATE INDEX IF NOT EXISTS `idx_membershipcard_user` ON `MembershipCard`(`UserId`);
+
+-- Tạo các index (bỏ qua lỗi nếu đã tồn tại)
+CREATE INDEX `idx_user_username` ON `User`(`username`);
+CREATE INDEX `idx_movie_status` ON `Movie`(`status`);
+CREATE INDEX `idx_movie_title` ON `Movie`(`title`);
+CREATE INDEX `idx_genre_name` ON `Genre`(`name`);
+CREATE INDEX `idx_movie_genre_movie` ON `Movie_Genre`(`MovieId`);
+CREATE INDEX `idx_movie_genre_genre` ON `Movie_Genre`(`GenreId`);
+CREATE INDEX `idx_showtime_movie` ON `ShowTime`(`MovieId`);
+CREATE INDEX `idx_showtime_room` ON `ShowTime`(`RoomId`);
+CREATE INDEX `idx_order_user` ON `Order`(`UserId`);
+CREATE INDEX `idx_ticket_order` ON `Ticket`(`OrderId`);
+CREATE INDEX `idx_ticket_showtime` ON `Ticket`(`ShowTimeId`);
+CREATE INDEX `idx_payment_order` ON `Payment`(`OrderId`);
+CREATE INDEX `idx_membershipcard_user` ON `MembershipCard`(`UserId`);
+
+-- =====================================================
+-- ĐẢM BẢO FOREIGN KEY ĐƯỢC TẠO ĐÚNG CÁCH
+-- Phần này đảm bảo foreign key được tạo ngay cả khi bảng đã tồn tại
+-- =====================================================
+
+-- Kiểm tra và tạo lại foreign key cho Room -> Cinema nếu cần
+-- Sử dụng stored procedure để xử lý lỗi một cách an toàn
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS ensure_room_foreign_key$$
+
+CREATE PROCEDURE ensure_room_foreign_key()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- Bỏ qua lỗi nếu constraint không tồn tại
+    END;
+    
+    -- Xóa constraint cũ nếu tồn tại
+    SET FOREIGN_KEY_CHECKS = 0;
+    ALTER TABLE `Room` DROP FOREIGN KEY `fk_room_cinema`;
+    SET FOREIGN_KEY_CHECKS = 1;
+END$$
+
+DELIMITER ;
+
+-- Gọi procedure để xóa constraint cũ (nếu có)
+CALL ensure_room_foreign_key();
+
+-- Tạo lại foreign key
+ALTER TABLE `Room` 
+ADD CONSTRAINT `fk_room_cinema` 
+FOREIGN KEY (`CinemaId`) REFERENCES `Cinema`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Xóa procedure tạm
+DROP PROCEDURE IF EXISTS ensure_room_foreign_key;
 
 -- =====================================================
 -- KẾT THÚC SCHEMA

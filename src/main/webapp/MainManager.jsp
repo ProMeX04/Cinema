@@ -22,7 +22,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link active" href="MainManager.jsp"><i class="fas fa-home me-1"></i>Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link" href="showtimes"><i class="fas fa-calendar-alt me-1"></i>Quản lý lịch chiếu</a></li>
+                <li class="nav-item"><a class="nav-link" href="ManageShowtime.jsp"><i class="fas fa-calendar-alt me-1"></i>Quản lý lịch chiếu</a></li>
             </ul>
             <div class="d-flex align-items-center">
                 <c:if test="${not empty sessionScope.currentUser}">
@@ -60,7 +60,7 @@
                     <p class="movie-info mb-4" style="font-size: 1.1rem;">
                         Quản lý các lịch chiếu hiện tại, tạo lịch chiếu mới và theo dõi các suất chiếu
                     </p>
-                    <a href="showtimes" class="btn btn-cinema-primary btn-lg">
+                    <a href="ManageShowtime.jsp" class="btn btn-cinema-primary btn-lg">
                         <i class="fas fa-arrow-right me-2"></i>Vào Quản Lý Lịch Chiếu
                     </a>
                 </div>

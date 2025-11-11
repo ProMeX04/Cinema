@@ -79,7 +79,7 @@ public class MovieServlet extends HttpServlet {
     }
 
     private void handleNowShowing(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<Movie> movies = movieDAO.findMovieNowShowing();
+        List<Movie> movies = movieDAO.getMovieNowShowing();
         if ("json".equalsIgnoreCase(request.getParameter("format"))) {
             response.setContentType("application/json;charset=UTF-8");
             try (PrintWriter writer = response.getWriter()) {
@@ -97,10 +97,15 @@ public class MovieServlet extends HttpServlet {
             }
         } else {
             request.setAttribute("moviesNowShowing", movies);
-            try {
-                request.getRequestDispatcher("/ScheduleShowtime.jsp").forward(request, response);
-            } catch (ServletException ex) {
-                throw new IOException(ex);
+            // Nếu được include từ JSP thì không forward (chỉ set attribute)
+            String includeRequestUri = (String) request.getAttribute("javax.servlet.include.request_uri");
+            if (includeRequestUri == null && request.getParameter("include") == null) {
+                // Chỉ forward nếu không phải là include request
+                try {
+                    request.getRequestDispatcher("/ScheduleShowtime.jsp").forward(request, response);
+                } catch (ServletException ex) {
+                    throw new IOException(ex);
+                }
             }
         }
     }

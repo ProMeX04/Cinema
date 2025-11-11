@@ -1,5 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    // Gọi MovieServlet để lấy các film đang công chiếu
+    // MovieServlet sẽ gọi MovieDAO.getMovieNowShowing()
+    request.getRequestDispatcher("/movies?action=nowShowing&include=true").include(request, response);
+    
+    // Gọi ShowtimeServlet để tìm phòng trống
+    // ShowtimeServlet sẽ gọi ShowtimeDAO.findRoomAvailable()
+    request.getRequestDispatcher("/showtimes?action=availableRooms&include=true").include(request, response);
+%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -22,7 +31,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="MainManager.jsp"><i class="fas fa-home me-1"></i>Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link" href="showtimes"><i class="fas fa-calendar-alt me-1"></i>Quản lý lịch chiếu</a></li>
+                <li class="nav-item"><a class="nav-link" href="ManageShowtime.jsp"><i class="fas fa-calendar-alt me-1"></i>Quản lý lịch chiếu</a></li>
                 <li class="nav-item"><a class="nav-link active" href="#"><i class="fas fa-plus-circle me-1"></i>Tạo lịch chiếu</a></li>
             </ul>
             <form class="d-flex" method="post" action="auth">
@@ -107,7 +116,7 @@
                 <button type="submit" class="btn btn-cinema-primary btn-lg me-3">
                     <i class="fas fa-check-circle me-2"></i>Xác Nhận Tạo Lịch Chiếu
                 </button>
-                <a href="showtimes" class="btn btn-cinema-outline btn-lg">
+                <a href="ManageShowtime.jsp" class="btn btn-cinema-outline btn-lg">
                     <i class="fas fa-arrow-left me-2"></i>Quay Lại
                 </a>
             </div>
@@ -125,37 +134,5 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('movies?action=nowShowing&format=json')
-            .then(response => response.json())
-            .then(movies => {
-                const movieSelect = document.getElementById('movieId');
-                Array.from(movieSelect.options).slice(1).forEach(option => option.remove());
-                movies.forEach(movie => {
-                    const option = document.createElement('option');
-                    option.value = movie.id;
-                    option.textContent = `${movie.title} (${movie.status || 'Đang chiếu'})`;
-                    movieSelect.appendChild(option);
-                });
-            })
-            .catch(() => console.warn('Không thể tải danh sách phim đang chiếu.'));
-
-        fetch('showtimes?action=availableRooms')
-            .then(response => response.json())
-            .then(rooms => {
-                const roomSelect = document.getElementById('roomId');
-                Array.from(roomSelect.options).slice(1).forEach(option => option.remove());
-                rooms.forEach(room => {
-                    const option = document.createElement('option');
-                    option.value = room.id;
-                    const formatLabel = room.format ? ` - ${room.format}` : '';
-                    option.textContent = `${room.name}${formatLabel}`;
-                    roomSelect.appendChild(option);
-                });
-            })
-            .catch(() => console.warn('Không thể tải danh sách phòng trống.'));
-    });
-</script>
 </body>
 </html>
