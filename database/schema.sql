@@ -46,6 +46,15 @@ CREATE TABLE IF NOT EXISTS `Room` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- BẢNG GENRE - Thể loại phim
+-- =====================================================
+CREATE TABLE IF NOT EXISTS `Genre` (
+    `id` INT(10) PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(255) UNIQUE NOT NULL,
+    `description` VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- BẢNG MOVIE - Thông tin phim
 -- =====================================================
 CREATE TABLE IF NOT EXISTS `Movie` (
@@ -58,8 +67,18 @@ CREATE TABLE IF NOT EXISTS `Movie` (
     `status` VARCHAR(255),
     `poster` VARCHAR(255),
     `trailer` VARCHAR(255),
-    `genre` VARCHAR(255),
     `language` VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- BẢNG MOVIE_GENRE - Quan hệ nhiều-nhiều giữa Movie và Genre
+-- =====================================================
+CREATE TABLE IF NOT EXISTS `Movie_Genre` (
+    `MovieId` INT(10) NOT NULL,
+    `GenreId` INT(10) NOT NULL,
+    PRIMARY KEY (`MovieId`, `GenreId`),
+    FOREIGN KEY (`MovieId`) REFERENCES `Movie`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`GenreId`) REFERENCES `Genre`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
@@ -189,13 +208,39 @@ INSERT INTO `Seat` (`position`, `seatType`, `RoomId`) VALUES
     ('C2', 'Standard', 3)
 ON DUPLICATE KEY UPDATE `id`=`id`;
 
+-- Chèn dữ liệu Genre
+INSERT INTO `Genre` (`name`, `description`) VALUES
+    ('Tâm lý', 'Phim tâm lý, tình cảm'),
+    ('Hành động', 'Phim hành động, phiêu lưu'),
+    ('Hài', 'Phim hài, giải trí'),
+    ('Khoa học viễn tưởng', 'Phim khoa học viễn tưởng'),
+    ('Kinh dị', 'Phim kinh dị, giật gân'),
+    ('Tài liệu', 'Phim tài liệu'),
+    ('Hoạt hình', 'Phim hoạt hình'),
+    ('Chính kịch', 'Phim chính kịch')
+ON DUPLICATE KEY UPDATE `name`=`name`;
+
 -- Chèn dữ liệu Movie
-INSERT INTO `Movie` (`title`, `description`, `duration`, `rating`, `releaseDate`, `status`, `poster`, `trailer`, `genre`, `language`) VALUES
-    ('Lời Chưa Nói', 'Câu chuyện cảm động về tình yêu và gia đình. Một bộ phim tâm lý đầy cảm xúc với diễn xuất xuất sắc của dàn diễn viên.', 120.0, 8.5, '2024-01-12', 'Now Showing', 'https://example.com/posters/loi-chua-noi.jpg', 'https://example.com/trailers/loi-chua-noi.mp4', 'Tâm lý', 'Tiếng Việt'),
-    ('SpiderMan 4', 'Siêu anh hùng SpiderMan trở lại với cuộc phiêu lưu mới đầy kịch tính và hành động mãn nhãn.', 135.0, 9.1, '2023-12-20', 'Now Showing', 'https://example.com/posters/spiderman4.jpg', 'https://example.com/trailers/spiderman4.mp4', 'Hành động', 'Tiếng Anh'),
-    ('Kỳ Nghỉ Trong Mơ', 'Bộ phim hài hước cho cả gia đình với những tình huống dở khóc dở cười.', 110.0, 7.2, '2023-08-05', 'Coming Soon', 'https://example.com/posters/ky-nghi-trong-mo.jpg', 'https://example.com/trailers/ky-nghi-trong-mo.mp4', 'Hài', 'Tiếng Việt'),
-    ('Avengers: Endgame', 'Cuộc chiến cuối cùng của các siêu anh hùng để cứu vũ trụ.', 181.0, 9.5, '2024-02-15', 'Now Showing', 'https://example.com/posters/avengers-endgame.jpg', 'https://example.com/trailers/avengers-endgame.mp4', 'Hành động', 'Tiếng Anh')
+INSERT INTO `Movie` (`title`, `description`, `duration`, `rating`, `releaseDate`, `status`, `poster`, `trailer`, `language`) VALUES
+    ('Lời Chưa Nói', 'Câu chuyện cảm động về tình yêu và gia đình. Một bộ phim tâm lý đầy cảm xúc với diễn xuất xuất sắc của dàn diễn viên.', 120.0, 8.5, '2024-01-12', 'Now Showing', 'https://example.com/posters/loi-chua-noi.jpg', 'https://example.com/trailers/loi-chua-noi.mp4', 'Tiếng Việt'),
+    ('SpiderMan 4', 'Siêu anh hùng SpiderMan trở lại với cuộc phiêu lưu mới đầy kịch tính và hành động mãn nhãn.', 135.0, 9.1, '2023-12-20', 'Now Showing', 'https://example.com/posters/spiderman4.jpg', 'https://example.com/trailers/spiderman4.mp4', 'Tiếng Anh'),
+    ('Kỳ Nghỉ Trong Mơ', 'Bộ phim hài hước cho cả gia đình với những tình huống dở khóc dở cười.', 110.0, 7.2, '2023-08-05', 'Coming Soon', 'https://example.com/posters/ky-nghi-trong-mo.jpg', 'https://example.com/trailers/ky-nghi-trong-mo.mp4', 'Tiếng Việt'),
+    ('Avengers: Endgame', 'Cuộc chiến cuối cùng của các siêu anh hùng để cứu vũ trụ.', 181.0, 9.5, '2024-02-15', 'Now Showing', 'https://example.com/posters/avengers-endgame.jpg', 'https://example.com/trailers/avengers-endgame.mp4', 'Tiếng Anh')
 ON DUPLICATE KEY UPDATE `id`=`id`;
+
+-- Chèn dữ liệu Movie_Genre (quan hệ nhiều-nhiều)
+-- Lời Chưa Nói: Tâm lý
+INSERT INTO `Movie_Genre` (`MovieId`, `GenreId`) VALUES (1, 1)
+ON DUPLICATE KEY UPDATE `MovieId`=`MovieId`;
+-- SpiderMan 4: Hành động, Khoa học viễn tưởng
+INSERT INTO `Movie_Genre` (`MovieId`, `GenreId`) VALUES (2, 2), (2, 4)
+ON DUPLICATE KEY UPDATE `MovieId`=`MovieId`;
+-- Kỳ Nghỉ Trong Mơ: Hài, Tâm lý
+INSERT INTO `Movie_Genre` (`MovieId`, `GenreId`) VALUES (3, 3), (3, 1)
+ON DUPLICATE KEY UPDATE `MovieId`=`MovieId`;
+-- Avengers: Endgame: Hành động, Khoa học viễn tưởng
+INSERT INTO `Movie_Genre` (`MovieId`, `GenreId`) VALUES (4, 2), (4, 4)
+ON DUPLICATE KEY UPDATE `MovieId`=`MovieId`;
 
 -- Chèn dữ liệu ShowTime (Lịch chiếu)
 INSERT INTO `ShowTime` (`startTime`, `endTime`, `status`, `MovieId`, `RoomId`) VALUES
@@ -236,6 +281,9 @@ ON DUPLICATE KEY UPDATE `cardNumber`=`cardNumber`;
 CREATE INDEX IF NOT EXISTS `idx_user_username` ON `User`(`username`);
 CREATE INDEX IF NOT EXISTS `idx_movie_status` ON `Movie`(`status`);
 CREATE INDEX IF NOT EXISTS `idx_movie_title` ON `Movie`(`title`);
+CREATE INDEX IF NOT EXISTS `idx_genre_name` ON `Genre`(`name`);
+CREATE INDEX IF NOT EXISTS `idx_movie_genre_movie` ON `Movie_Genre`(`MovieId`);
+CREATE INDEX IF NOT EXISTS `idx_movie_genre_genre` ON `Movie_Genre`(`GenreId`);
 CREATE INDEX IF NOT EXISTS `idx_showtime_movie` ON `ShowTime`(`MovieId`);
 CREATE INDEX IF NOT EXISTS `idx_showtime_room` ON `ShowTime`(`RoomId`);
 CREATE INDEX IF NOT EXISTS `idx_order_user` ON `Order`(`UserId`);

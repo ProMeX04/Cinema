@@ -1,6 +1,7 @@
 package com.cinema.dao;
 
 import com.cinema.model.Cinema;
+import com.cinema.model.Genre;
 import com.cinema.model.Movie;
 import com.cinema.model.Room;
 import com.cinema.model.Showtime;
@@ -25,13 +26,19 @@ public class ShowtimeDAO {
             "SELECT st.id, st.startTime, st.endTime, st.status, " +
                     "r.id AS room_id, r.name AS room_name, r.capacity, r.description AS room_description, r.format, " +
                     "c.id AS cinema_id, c.name AS cinema_name, c.address AS cinema_address, c.description AS cinema_description, " +
-                    "m.id AS movie_id, m.title AS movie_title, m.poster AS movie_poster, m.genre AS movie_genre, m.duration AS movie_duration " +
+                    "m.id AS movie_id, m.title AS movie_title, m.poster AS movie_poster, m.duration AS movie_duration " +
                     "FROM ShowTime st " +
                     "JOIN Room r ON st.RoomId = r.id " +
                     "JOIN Cinema c ON r.CinemaId = c.id " +
                     "JOIN Movie m ON st.MovieId = m.id " +
                     "WHERE st.startTime >= CURRENT_DATE() " +
                     "ORDER BY st.startTime";
+
+    private GenreDAO genreDAO;
+
+    public ShowtimeDAO() {
+        this.genreDAO = new GenreDAO();
+    }
 
     private static final String SELECT_AVAILABLE_ROOMS =
             "SELECT r.id AS room_id, r.name AS room_name, r.capacity, r.description AS room_description, r.format, " +
@@ -181,8 +188,12 @@ public class ShowtimeDAO {
         movie.setId(rs.getInt("movie_id"));
         movie.setTitle(rs.getString("movie_title"));
         movie.setPoster(rs.getString("movie_poster"));
-        movie.setGenre(rs.getString("movie_genre"));
         movie.setDuration(rs.getDouble("movie_duration"));
+        
+        // Load genres for this movie
+        List<Genre> genres = genreDAO.findByMovieId(movie.getId());
+        movie.setGenres(genres);
+        
         showtime.setMovie(movie);
         return showtime;
     }

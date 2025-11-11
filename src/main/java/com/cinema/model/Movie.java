@@ -1,6 +1,8 @@
 package com.cinema.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Represents a movie that can be displayed in the cinema system.
@@ -15,15 +17,16 @@ public class Movie {
     private String status;
     private String poster;
     private String trailer;
-    private String genre;
+    private List<Genre> genres;
     private String language;
 
     public Movie() {
+        this.genres = new ArrayList<>();
     }
 
     public Movie(int id, String title, String description, double duration, double rating,
                  Date releaseDate, String status, String poster, String trailer,
-                 String genre, String language) {
+                 String language) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -33,7 +36,7 @@ public class Movie {
         this.status = status;
         this.poster = poster;
         this.trailer = trailer;
-        this.genre = genre;
+        this.genres = new ArrayList<>();
         this.language = language;
     }
 
@@ -109,12 +112,39 @@ public class Movie {
         this.trailer = trailer;
     }
 
-    public String getGenre() {
-        return genre;
+    public List<Genre> getGenres() {
+        return genres;
     }
 
-    public void setGenre(String genre) {
-        this.genre = genre;
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres != null ? genres : new ArrayList<>();
+    }
+
+    /**
+     * Thêm một thể loại vào danh sách thể loại của phim.
+     */
+    public void addGenre(Genre genre) {
+        if (genre != null && !this.genres.contains(genre)) {
+            this.genres.add(genre);
+        }
+    }
+
+    /**
+     * Lấy danh sách tên thể loại dưới dạng chuỗi, cách nhau bởi dấu phẩy.
+     * Hữu ích cho việc hiển thị trong JSP.
+     */
+    public String getGenresAsString() {
+        if (genres == null || genres.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < genres.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(genres.get(i).getName());
+        }
+        return sb.toString();
     }
 
     public String getLanguage() {

@@ -88,7 +88,17 @@
                         <div class="col-md-6">
                             <p class="movie-detail-info">
                                 <span class="movie-detail-label"><i class="fas fa-tags me-1"></i>Thể loại:</span>
-                                ${movie.genre}
+                                <c:choose>
+                                    <c:when test="${not empty movie.genres}">
+                                        <c:forEach items="${movie.genres}" var="genre" varStatus="loop">
+                                            <span class="badge bg-cinema-gold text-dark me-1">${genre.name}</span>
+                                            <c:if test="${!loop.last}"></c:if>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span style="color: var(--cinema-text-light);">Chưa có thông tin</span>
+                                    </c:otherwise>
+                                </c:choose>
                             </p>
                         </div>
                         <div class="col-md-6">

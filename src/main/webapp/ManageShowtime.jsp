@@ -89,7 +89,12 @@
                                 ${showtime.movie.title}
                             </div>
                             <small style="color: var(--cinema-text-light);">
-                                <i class="fas fa-tags me-1"></i>${showtime.movie.genre}
+                                <c:if test="${not empty showtime.movie.genres}">
+                                    <i class="fas fa-tags me-1"></i>
+                                    <c:forEach items="${showtime.movie.genres}" var="genre" varStatus="loop">
+                                        ${genre.name}<c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
+                                </c:if>
                             </small>
                         </td>
                     </tr>

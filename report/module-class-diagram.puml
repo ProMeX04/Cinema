@@ -38,6 +38,11 @@ package "Module Tìm Kiếm và Xem Chi Tiết Phim" {
     ' =====================================================
     ' TẦNG MODEL
     ' =====================================================
+    class Genre {
+        name
+        description
+    }
+    
     class Movie {
         title
         description
@@ -47,7 +52,6 @@ package "Module Tìm Kiếm và Xem Chi Tiết Phim" {
         status
         poster
         trailer
-        genre
         language
     }
 }
@@ -103,6 +107,9 @@ package "Module Lên Lịch Chiếu" {
 ' QUAN HỆ GIỮA CÁC MODULE (Movie được dùng chung)
 ' =====================================================
 ' Movie được sử dụng ở cả 2 module
+
+' Movie <-> Genre (N:M) - Quan hệ nhiều-nhiều
+Movie "N" }o--o{ "M" Genre : "thuộc nhiều thể loại"
 
 ' =====================================================
 ' QUAN HỆ: Module Tìm Kiếm và Xem Chi Tiết Phim
@@ -169,6 +176,12 @@ end note
 note bottom of Movie
     <b>Model:</b> Thông tin phim
     Chứa tất cả thuộc tính về phim
+    Một phim có thể có nhiều thể loại (genres)
+end note
+
+note bottom of Genre
+    <b>Model:</b> Thể loại phim
+    Một thể loại có thể có nhiều phim
 end note
 
 note bottom of Showtime

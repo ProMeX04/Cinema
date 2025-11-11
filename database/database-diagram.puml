@@ -57,6 +57,16 @@ class tblRoom << (T,#FFAAAA) >> {
 }
 
 ' =====================================================
+' BẢNG GENRE - Thể loại phim
+' =====================================================
+class tblGenre << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    + name : VARCHAR(255) <<UNIQUE, NOT NULL>>
+    description : VARCHAR(255)
+}
+
+' =====================================================
 ' BẢNG MOVIE - Thông tin phim
 ' =====================================================
 class tblMovie << (T,#FFAAAA) >> {
@@ -70,8 +80,15 @@ class tblMovie << (T,#FFAAAA) >> {
     status : VARCHAR(255)
     poster : VARCHAR(255)
     trailer : VARCHAR(255)
-    genre : VARCHAR(255)
     language : VARCHAR(255)
+}
+
+' =====================================================
+' BẢNG MOVIE_GENRE - Quan hệ nhiều-nhiều giữa Movie và Genre
+' =====================================================
+class tblMovieGenre << (T,#FFAAAA) >> {
+    + **MovieId** : INT <<PK, FK>>
+    + **GenreId** : INT <<PK, FK>>
 }
 
 ' =====================================================
@@ -164,6 +181,11 @@ tblMovie "1" ||--o{ "N" tblShowTime : "chiếu nhiều lần"
 ' Room -> ShowTime (1:N) - Một phòng có nhiều lịch chiếu
 tblRoom "1" ||--o{ "N" tblShowTime : "được chiếu tại"
 
+' Movie <-> Genre (N:M) - Một phim có nhiều thể loại, một thể loại có nhiều phim
+' Quan hệ được thực hiện qua bảng trung gian Movie_Genre
+tblMovie "N" ||--o{ "N" tblMovieGenre : "có nhiều"
+tblGenre "M" ||--o{ "N" tblMovieGenre : "được gán cho"
+
 ' User -> Order (1:N) - Một user có nhiều đơn hàng
 tblUser "1" ||--o{ "N" tblOrder : "đặt nhiều"
 
@@ -197,6 +219,24 @@ note right of tblMovie
     <b>Trạng thái (status):</b>
     • Now Showing: Đang chiếu
     • Coming Soon: Sắp chiếu
+end note
+
+note right of tblGenre
+    <b>Thể loại phim:</b>
+    • Tâm lý
+    • Hành động
+    • Hài
+    • Khoa học viễn tưởng
+    • Kinh dị
+    • Tài liệu
+    • Hoạt hình
+    • Chính kịch
+end note
+
+note right of tblMovieGenre
+    <b>Bảng trung gian:</b>
+    Liên kết nhiều-nhiều giữa
+    Movie và Genre
 end note
 
 note right of tblShowTime
