@@ -16,6 +16,7 @@ public class Movie {
     private Date releaseDate;
     private String status;
     private String poster;
+    private String imageUrl;
     private String trailer;
     private List<Genre> genres;
     private String language;
@@ -25,7 +26,7 @@ public class Movie {
     }
 
     public Movie(int id, String title, String description, double duration, double rating,
-                 Date releaseDate, String status, String poster, String trailer,
+                 Date releaseDate, String status, String poster, String imageUrl, String trailer,
                  String language) {
         this.id = id;
         this.title = title;
@@ -35,6 +36,7 @@ public class Movie {
         this.releaseDate = releaseDate;
         this.status = status;
         this.poster = poster;
+        this.imageUrl = imageUrl;
         this.trailer = trailer;
         this.genres = new ArrayList<>();
         this.language = language;

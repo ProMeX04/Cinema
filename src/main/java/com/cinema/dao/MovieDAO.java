@@ -13,7 +13,7 @@ import java.util.List;
 
 public class MovieDAO {
 
-    private static final String BASE_SELECT = "SELECT id, title, description, duration, rating, releaseDate, status, poster, trailer, language FROM Movie";
+    private static final String BASE_SELECT = "SELECT id, title, description, duration, rating, releaseDate, status, poster, imageUrl, trailer, language FROM Movie";
     private static final String SELECT_BY_TITLE = BASE_SELECT + " WHERE title LIKE ?";
     private static final String SELECT_BY_ID = BASE_SELECT + " WHERE id = ?";
     private static final String SELECT_ALL = BASE_SELECT + " ORDER BY releaseDate DESC";
@@ -215,6 +215,7 @@ public class MovieDAO {
         }
         movie.setStatus(rs.getString("status"));
         movie.setPoster(rs.getString("poster"));
+        movie.setImageUrl(rs.getString("imageUrl"));
         movie.setTrailer(rs.getString("trailer"));
         movie.setLanguage(rs.getString("language"));
 

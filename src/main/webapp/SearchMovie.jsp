@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -95,11 +96,23 @@
         <c:forEach items="${movies}" var="movie">
             <div class="col-md-6 col-lg-4">
                 <div class="movie-card">
-                    <c:if test="${not empty movie.poster}">
-                        <img src="${movie.poster}" class="movie-poster" alt="Poster ${movie.title}" 
+                    <c:set var="movieImage" value="${not empty movie.imageUrl ? movie.imageUrl : movie.poster}" />
+                    <c:if test="${not empty movieImage}">
+                        <c:choose>
+                            <c:when test="${fn:startsWith(movieImage, 'http://') or fn:startsWith(movieImage, 'https://')}">
+                                <c:set var="imageSrc" value="${movieImage}" />
+                            </c:when>
+                            <c:when test="${fn:startsWith(movieImage, '/')}">
+                                <c:set var="imageSrc" value="${pageContext.request.contextPath}${movieImage}" />
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="imageSrc" value="${pageContext.request.contextPath}/${movieImage}" />
+                            </c:otherwise>
+                        </c:choose>
+                        <img src="${imageSrc}" class="movie-poster" alt="Poster ${movie.title}" 
                              onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 400%22><rect fill=%22%231a1a1a%22 width=%22300%22 height=%22400%22/><text x=%2250%25%22 y=%2250%25%22 fill=%22%23ffc107%22 font-size=%2220%22 text-anchor=%22middle%22 dy=%22.3em%22>${movie.title}</text></svg>'">
                     </c:if>
-                    <c:if test="${empty movie.poster}">
+                    <c:if test="${empty movieImage}">
                         <div class="movie-poster d-flex align-items-center justify-content-center" 
                              style="background: var(--cinema-light-gray); color: var(--cinema-gold); font-size: 1.5rem; font-weight: bold;">
                             ${movie.title}
