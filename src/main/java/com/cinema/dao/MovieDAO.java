@@ -115,7 +115,6 @@ public class MovieDAO {
         return movies;
     }
 
-    // Alias method để tương thích với code cũ
     public List<Movie> findMovieNowShowing() {
         return getMovieNowShowing();
     }

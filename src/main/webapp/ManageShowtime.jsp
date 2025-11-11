@@ -2,8 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
-    // Gọi ShowtimeServlet để lấy dữ liệu lịch chiếu
-    // ShowtimeServlet sẽ gọi ShowtimeDAO.findCurrentShowtime()
     request.getRequestDispatcher("/showtimes?include=true").include(request, response);
 %>
 <!DOCTYPE html>
@@ -49,6 +47,20 @@
             <i class="fas fa-plus-circle me-1"></i>Thêm Mới Lịch Chiếu
         </a>
     </div>
+    
+    <c:if test="${not empty param.successMessage}">
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>${param.successMessage}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </c:if>
+    
+    <c:if test="${not empty param.errorMessage}">
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>${param.errorMessage}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </c:if>
     
     <div class="movie-detail-container">
         <div class="table-responsive">

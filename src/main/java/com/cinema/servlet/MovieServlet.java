@@ -80,15 +80,27 @@ public class MovieServlet extends HttpServlet {
 
     private void handleNowShowing(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Movie> movies = movieDAO.getMovieNowShowing();
+        System.out.println("DEBUG: Found " + movies.size() + " movies");
+        for (Movie m : movies) {
+            System.out.println("  Movie: " + m.getTitle() + ", Status: '" + m.getStatus() + "'");
+        }
         if ("json".equalsIgnoreCase(request.getParameter("format"))) {
             response.setContentType("application/json;charset=UTF-8");
             try (PrintWriter writer = response.getWriter()) {
                 writer.write("[");
                 for (int i = 0; i < movies.size(); i++) {
                     Movie movie = movies.get(i);
-                    writer.write(String.format("{\"id\":%d,\"title\":\"%s\",\"status\":\"%s\"}",
-                            movie.getId(), escapeJson(defaultString(movie.getTitle())),
-                            escapeJson(defaultString(movie.getStatus()))));
+                String title = movie.getTitle() != null ? escapeJson(movie.getTitle()) : "";
+                String status = "";
+                if (movie.getStatus() != null && 
+                    !movie.getStatus().isEmpty() && 
+                    !movie.getStatus().equalsIgnoreCase("false") &&
+                    !movie.getStatus().equals("0")) {
+                    status = escapeJson(movie.getStatus());
+                }
+                double duration = movie.getDuration();
+                writer.write(String.format("{\"id\":%d,\"title\":\"%s\",\"status\":\"%s\",\"duration\":%.1f}",
+                        movie.getId(), title, status, duration));
                     if (i < movies.size() - 1) {
                         writer.write(",");
                     }
@@ -97,10 +109,8 @@ public class MovieServlet extends HttpServlet {
             }
         } else {
             request.setAttribute("moviesNowShowing", movies);
-            // Nếu được include từ JSP thì không forward (chỉ set attribute)
             String includeRequestUri = (String) request.getAttribute("javax.servlet.include.request_uri");
             if (includeRequestUri == null && request.getParameter("include") == null) {
-                // Chỉ forward nếu không phải là include request
                 try {
                     request.getRequestDispatcher("/ScheduleShowtime.jsp").forward(request, response);
                 } catch (ServletException ex) {

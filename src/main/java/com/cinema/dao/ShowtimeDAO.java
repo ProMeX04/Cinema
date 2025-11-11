@@ -19,17 +19,17 @@ import java.util.List;
 
 public class ShowtimeDAO {
 
-    private static final String SELECT_CURRENT =
-            "SELECT st.id, st.startTime, st.endTime, st.status, " +
-                    "r.id AS room_id, r.name AS room_name, r.capacity, r.description AS room_description, r.format, " +
-                    "c.id AS cinema_id, c.name AS cinema_name, c.address AS cinema_address, c.description AS cinema_description, " +
-                    "m.id AS movie_id, m.title AS movie_title, m.poster AS movie_poster, m.duration AS movie_duration " +
-                    "FROM ShowTime st " +
-                    "JOIN Room r ON st.RoomId = r.id " +
-                    "JOIN Cinema c ON r.CinemaId = c.id " +
-                    "JOIN Movie m ON st.MovieId = m.id " +
-                    "WHERE st.startTime >= CURRENT_DATE() " +
-                    "ORDER BY st.startTime";
+    private static final String SELECT_CURRENT = "SELECT st.id, st.startTime, st.endTime, st.status, " +
+            "r.id AS room_id, r.name AS room_name, r.capacity, r.description AS room_description, r.format, " +
+            "c.id AS cinema_id, c.name AS cinema_name, c.address AS cinema_address, c.description AS cinema_description, "
+            +
+            "m.id AS movie_id, m.title AS movie_title, m.poster AS movie_poster, m.duration AS movie_duration " +
+            "FROM ShowTime st " +
+            "JOIN Room r ON st.RoomId = r.id " +
+            "JOIN Cinema c ON r.CinemaId = c.id " +
+            "JOIN Movie m ON st.MovieId = m.id " +
+            "WHERE st.startTime >= CURRENT_DATE() " +
+            "ORDER BY st.startTime";
 
     private GenreDAO genreDAO;
 
@@ -37,17 +37,17 @@ public class ShowtimeDAO {
         this.genreDAO = new GenreDAO();
     }
 
-    private static final String SELECT_AVAILABLE_ROOMS =
-            "SELECT r.id AS room_id, r.name AS room_name, r.capacity, r.description AS room_description, r.format, " +
-                    "c.id AS cinema_id, c.name AS cinema_name, c.address AS cinema_address, c.description AS cinema_description " +
-                    "FROM Room r JOIN Cinema c ON r.CinemaId = c.id ORDER BY r.name";
+    private static final String SELECT_AVAILABLE_ROOMS = "SELECT r.id AS room_id, r.name AS room_name, r.capacity, r.description AS room_description, r.format, "
+            +
+            "c.id AS cinema_id, c.name AS cinema_name, c.address AS cinema_address, c.description AS cinema_description "
+            +
+            "FROM Room r JOIN Cinema c ON r.CinemaId = c.id ORDER BY r.name";
 
-    private static final String INSERT_SHOWTIME =
-            "INSERT INTO ShowTime (startTime, endTime, status, MovieId, RoomId) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_SHOWTIME = "INSERT INTO ShowTime (startTime, endTime, status, MovieId, RoomId) VALUES (?, ?, ?, ?, ?)";
 
-    private static final String CHECK_ROOM_AVAILABILITY =
-            "SELECT COUNT(*) FROM ShowTime WHERE RoomId = ? AND status != 'Cancelled' " +
-                    "AND NOT (endTime <= ? OR startTime >= ?)";
+    private static final String CHECK_ROOM_AVAILABILITY = "SELECT COUNT(*) FROM ShowTime WHERE RoomId = ? AND status != 'Cancelled' "
+            +
+            "AND NOT (endTime <= ? OR startTime >= ?)";
 
     public boolean isRoomAvailable(int roomId, Date startTime, Date endTime) {
         Connection connection = null;
@@ -115,10 +115,22 @@ public class ShowtimeDAO {
         }
         return rooms;
     }
-    
-    // Alias method để tương thích với code cũ
+
     public List<Room> findAvailableRoom() {
         return findRoomAvailable();
+    }
+
+    public List<Room> findRoomAvailable(Date startTime, Date endTime) {
+        List<Room> allRooms = findRoomAvailable();
+        List<Room> availableRooms = new ArrayList<>();
+
+        for (Room room : allRooms) {
+            if (isRoomAvailable(room.getId(), startTime, endTime)) {
+                availableRooms.add(room);
+            }
+        }
+
+        return availableRooms;
     }
 
     public int save(Showtime showtime) {
@@ -167,10 +179,10 @@ public class ShowtimeDAO {
         movie.setTitle(rs.getString("movie_title"));
         movie.setPoster(rs.getString("movie_poster"));
         movie.setDuration(rs.getDouble("movie_duration"));
-        
+
         List<Genre> genres = genreDAO.findByMovieId(movie.getId());
         movie.setGenres(genres);
-        
+
         showtime.setMovie(movie);
         return showtime;
     }

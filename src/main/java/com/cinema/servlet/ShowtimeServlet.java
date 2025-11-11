@@ -18,6 +18,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @WebServlet(name = "ShowtimeServlet", urlPatterns = { "/showtimes" })
@@ -61,7 +63,6 @@ public class ShowtimeServlet extends HttpServlet {
             throws ServletException, IOException {
         List<Showtime> showtimes = showtimeDAO.findCurrentShowtime();
         request.setAttribute("showtimes", showtimes);
-        // Nếu được include từ JSP (có parameter include=true) thì không forward
         if (request.getParameter("include") == null) {
             request.getRequestDispatcher("/ManageShowtime.jsp").forward(request, response);
         }
@@ -71,29 +72,78 @@ public class ShowtimeServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setAttribute("moviesNowShowing", movieDAO.getMovieNowShowing());
         request.setAttribute("availableRooms", showtimeDAO.findRoomAvailable());
-        // Nếu được include từ JSP (có parameter include=true) thì không forward
         if (request.getParameter("include") == null) {
             request.getRequestDispatcher("/ScheduleShowtime.jsp").forward(request, response);
         }
     }
 
     private void handleAvailableRooms(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<Room> rooms = showtimeDAO.findRoomAvailable();
+        List<Room> rooms;
 
-        // Nếu được include từ JSP thì set attribute, không trả về JSON
+        String startTimeStr = request.getParameter("startTime");
+        String endTimeStr = request.getParameter("endTime");
+        String dateStr = request.getParameter("date");
+
+        if (startTimeStr != null && endTimeStr != null && dateStr != null) {
+            try {
+                String trimmedDate = dateStr.trim();
+                if (!trimmedDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                    throw new IllegalArgumentException("Định dạng ngày không hợp lệ");
+                }
+                LocalDate date = LocalDate.parse(trimmedDate, DateTimeFormatter.ISO_LOCAL_DATE);
+
+                String trimmedStartTime = startTimeStr.trim();
+                String trimmedEndTime = endTimeStr.trim();
+                if (!trimmedStartTime.matches("\\d{2}:\\d{2}") || !trimmedEndTime.matches("\\d{2}:\\d{2}")) {
+                    throw new IllegalArgumentException("Định dạng giờ không hợp lệ");
+                }
+                LocalTime startTime = LocalTime.parse(trimmedStartTime);
+                LocalTime endTime = LocalTime.parse(trimmedEndTime);
+
+                LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+                LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
+                java.util.Date startDate = java.util.Date
+                        .from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                java.util.Date endDate = java.util.Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+                rooms = showtimeDAO.findRoomAvailable(startDate, endDate);
+            } catch (DateTimeParseException | IllegalArgumentException e) {
+                System.out.println("DEBUG: Error parsing date/time in handleAvailableRooms: " + e.getMessage());
+                rooms = showtimeDAO.findRoomAvailable();
+            } catch (Exception e) {
+                System.out.println("DEBUG: Unexpected error in handleAvailableRooms: " + e.getMessage());
+                rooms = showtimeDAO.findRoomAvailable();
+            }
+        } else {
+            rooms = showtimeDAO.findRoomAvailable();
+        }
+
+        System.out.println("DEBUG: Found " + rooms.size() + " available rooms");
+        for (Room r : rooms) {
+            System.out.println("  Room: " + r.getName() + ", Format: '" + r.getFormat() + "'");
+        }
+
         if (request.getParameter("include") != null) {
             request.setAttribute("availableRooms", rooms);
             return;
         }
 
-        // Nếu không phải include thì trả về JSON
         response.setContentType("application/json;charset=UTF-8");
         try (PrintWriter writer = response.getWriter()) {
             writer.write("[");
             for (int i = 0; i < rooms.size(); i++) {
                 Room room = rooms.get(i);
-                writer.write(String.format("{\"id\":%d,\"name\":\"%s\",\"format\":\"%s\"}",
-                        room.getId(), escapeJson(room.getName()), escapeJson(defaultString(room.getFormat()))));
+                String name = room.getName() != null ? escapeJson(room.getName()) : "";
+                String format = "";
+                if (room.getFormat() != null &&
+                        !room.getFormat().isEmpty() &&
+                        !room.getFormat().equalsIgnoreCase("false") &&
+                        !room.getFormat().equals("0")) {
+                    format = escapeJson(room.getFormat());
+                }
+                int capacity = room.getCapacity();
+                writer.write(String.format("{\"id\":%d,\"name\":\"%s\",\"format\":\"%s\",\"capacity\":%d}",
+                        room.getId(), name, format, capacity));
                 if (i < rooms.size() - 1) {
                     writer.write(",");
                 }
@@ -105,11 +155,97 @@ public class ShowtimeServlet extends HttpServlet {
     private void createShowtime(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            LocalDate date = LocalDate.parse(request.getParameter("showDate"));
-            LocalTime startTime = LocalTime.parse(request.getParameter("startTime"));
-            LocalTime endTime = LocalTime.parse(request.getParameter("endTime"));
-            int roomId = Integer.parseInt(request.getParameter("roomId"));
-            int movieId = Integer.parseInt(request.getParameter("movieId"));
+            System.out.println("DEBUG: Creating showtime...");
+            String showDateStr = request.getParameter("showDate");
+            String startTimeStr = request.getParameter("startTime");
+            String endTimeStr = request.getParameter("endTime");
+            String roomIdStr = request.getParameter("roomId");
+            String movieIdStr = request.getParameter("movieId");
+
+            System.out.println(
+                    "DEBUG: showDate=" + showDateStr + ", startTime=" + startTimeStr + ", endTime=" + endTimeStr);
+            System.out.println("DEBUG: roomId=" + roomIdStr + ", movieId=" + movieIdStr);
+
+            if (showDateStr == null || showDateStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Ngày chiếu không được để trống");
+            }
+            if (startTimeStr == null || startTimeStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Giờ bắt đầu không được để trống");
+            }
+            if (endTimeStr == null || endTimeStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Giờ kết thúc không được để trống");
+            }
+            if (roomIdStr == null || roomIdStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Phòng không được để trống");
+            }
+            if (movieIdStr == null || movieIdStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Phim không được để trống");
+            }
+
+            LocalDate date;
+            try {
+                String trimmedDate = showDateStr.trim();
+                if (!trimmedDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                    throw new IllegalArgumentException(
+                            "Định dạng ngày không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD (ví dụ: 2024-12-25)");
+                }
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+                date = LocalDate.parse(trimmedDate, dateFormatter);
+
+                if (date.isBefore(LocalDate.now())) {
+                    throw new IllegalArgumentException("Ngày chiếu không được trong quá khứ");
+                }
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException(
+                        "Ngày chiếu không hợp lệ. Vui lòng kiểm tra lại định dạng ngày (YYYY-MM-DD)");
+            }
+
+            LocalTime startTime;
+            LocalTime endTime;
+            try {
+                String trimmedStartTime = startTimeStr.trim();
+                if (!trimmedStartTime.matches("\\d{2}:\\d{2}")) {
+                    throw new IllegalArgumentException(
+                            "Định dạng giờ bắt đầu không hợp lệ. Vui lòng sử dụng định dạng HH:mm (ví dụ: 14:30)");
+                }
+                startTime = LocalTime.parse(trimmedStartTime);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException(
+                        "Giờ bắt đầu không hợp lệ. Vui lòng kiểm tra lại định dạng giờ (HH:mm)");
+            }
+
+            try {
+                String trimmedEndTime = endTimeStr.trim();
+                if (!trimmedEndTime.matches("\\d{2}:\\d{2}")) {
+                    throw new IllegalArgumentException(
+                            "Định dạng giờ kết thúc không hợp lệ. Vui lòng sử dụng định dạng HH:mm (ví dụ: 16:30)");
+                }
+                endTime = LocalTime.parse(trimmedEndTime);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException(
+                        "Giờ kết thúc không hợp lệ. Vui lòng kiểm tra lại định dạng giờ (HH:mm)");
+            }
+
+            int roomId;
+            int movieId;
+            try {
+                roomId = Integer.parseInt(roomIdStr.trim());
+                if (roomId <= 0) {
+                    throw new IllegalArgumentException("ID phòng không hợp lệ");
+                }
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("ID phòng phải là một số hợp lệ");
+            }
+
+            try {
+                movieId = Integer.parseInt(movieIdStr.trim());
+                if (movieId <= 0) {
+                    throw new IllegalArgumentException("ID phim không hợp lệ");
+                }
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("ID phim phải là một số hợp lệ");
+            }
+            System.out.println("DEBUG: Parsed - MovieId=" + movieId + ", RoomId=" + roomId + ", Date=" + date);
 
             if (endTime.isBefore(startTime) || endTime.equals(startTime)) {
                 request.setAttribute("errorMessage", "Giờ kết thúc phải sau giờ bắt đầu.");
@@ -143,12 +279,28 @@ public class ShowtimeServlet extends HttpServlet {
             showtime.setMovie(movie);
 
             showtimeDAO.save(showtime);
-            request.setAttribute("successMessage", "Tạo lịch chiếu thành công");
+            System.out.println("DEBUG: Showtime saved successfully, redirecting to ManageShowtime.jsp");
+            String successMsg = java.net.URLEncoder.encode("Tạo lịch chiếu thành công", "UTF-8");
+            String redirectUrl = request.getContextPath() + "/ManageShowtime.jsp?successMessage=" + successMsg;
+            System.out.println("DEBUG: Redirect URL: " + redirectUrl);
+            response.sendRedirect(redirectUrl);
+            return;
+        } catch (IllegalArgumentException ex) {
+            System.out.println("DEBUG: Validation error: " + ex.getMessage());
+            request.setAttribute("errorMessage", ex.getMessage());
+            prepareSchedule(request, response);
         } catch (Exception ex) {
-            request.setAttribute("errorMessage", "Không thể tạo lịch chiếu: " + ex.getMessage());
+            System.out.println("DEBUG: Error creating showtime: " + ex.getMessage());
+            ex.printStackTrace();
+            String errorMsg = "Không thể tạo lịch chiếu. ";
+            if (ex.getMessage() != null) {
+                errorMsg += ex.getMessage();
+            } else {
+                errorMsg += "Vui lòng kiểm tra lại thông tin đã nhập.";
+            }
+            request.setAttribute("errorMessage", errorMsg);
+            prepareSchedule(request, response);
         }
-
-        prepareSchedule(request, response);
     }
 
     private String escapeJson(String value) {
@@ -158,7 +310,4 @@ public class ShowtimeServlet extends HttpServlet {
         return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
-    private String defaultString(String value) {
-        return value == null ? "" : value;
-    }
 }
