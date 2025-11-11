@@ -1,0 +1,125 @@
+@startuml Cinema Use Case - Tìm Kiếm Phim (Chi Tiết)
+!theme plain
+skinparam roundcorner 10
+skinparam shadowing false
+
+skinparam actor {
+    BackgroundColor #FFF4E6
+    BorderColor #D32F2F
+    FontSize 12
+}
+
+skinparam usecase {
+    BackgroundColor #E8F5E9
+    BorderColor #388E3C
+    FontSize 11
+}
+
+skinparam arrow {
+    LineColor #D32F2F
+    LineThickness 2
+}
+
+title Hệ Thống Quản Lý Rạp Chiếu Phim\nUse Case Chi Tiết: Tìm Kiếm Phim
+
+' =====================================================
+' ACTOR
+' =====================================================
+actor "Khách hàng" as Customer
+
+' =====================================================
+' PACKAGE: Module Tìm Kiếm Phim
+' =====================================================
+package "Module Tìm Kiếm Phim" {
+    
+    ' Use case chính
+    usecase "Tìm kiếm thông tin phim" as UC_SearchMovie
+    
+    ' Các use case chi tiết (sub-use cases)
+    usecase "Chọn menu tìm thông tin phim" as UC_SelectSearchMenu
+    usecase "Nhập tên phim để tìm" as UC_EnterMovieName
+    usecase "Hiển thị danh sách phim" as UC_DisplayMovieList
+    usecase "Xem chi tiết phim" as UC_ViewMovieDetail
+    usecase "Hiển thị thông tin chi tiết phim" as UC_DisplayMovieInfo
+}
+
+' =====================================================
+' QUAN HỆ: Actor -> Use Case (Association)
+' =====================================================
+Customer --> UC_SearchMovie
+
+' =====================================================
+' QUAN HỆ: Include (Use case chính includes các bước chi tiết)
+' =====================================================
+UC_SearchMovie ..> UC_SelectSearchMenu : <<include>>
+UC_SearchMovie ..> UC_EnterMovieName : <<include>>
+UC_SearchMovie ..> UC_DisplayMovieList : <<include>>
+UC_SearchMovie ..> UC_ViewMovieDetail : <<include>>
+UC_SearchMovie ..> UC_DisplayMovieInfo : <<include>>
+
+' =====================================================
+' GHI CHÚ VÀ MÔ TẢ LUỒNG
+' =====================================================
+
+note right of UC_SearchMovie
+    <b>Use Case Chính:</b> Tìm kiếm thông tin phim
+    
+    <b>Mô tả:</b> Khách hàng có thể tìm kiếm
+    và xem thông tin chi tiết về các bộ phim
+    trong hệ thống.
+    
+    <b>Luồng thực hiện:</b>
+    1. Chọn menu tìm thông tin phim
+    2. Nhập tên phim để tìm
+    3. Hệ thống hiện danh sách các phim
+    4. Click vào một phim xem chi tiết
+    5. Hệ thống hiện thông tin chi tiết về phim
+end note
+
+note right of UC_SelectSearchMenu
+    <b>Bước 1:</b> Chọn menu tìm thông tin phim
+    từ giao diện chính của hệ thống.
+end note
+
+note right of UC_EnterMovieName
+    <b>Bước 2:</b> Nhập tên phim hoặc từ khóa
+    vào ô tìm kiếm.
+end note
+
+note right of UC_DisplayMovieList
+    <b>Bước 3:</b> Hệ thống hiển thị danh sách
+    các phim có tên chứa từ khóa vừa nhập.
+    Danh sách có thể bao gồm:
+    - Tên phim
+    - Poster
+    - Trạng thái (Đang chiếu/Sắp chiếu)
+    - Đánh giá
+end note
+
+note right of UC_ViewMovieDetail
+    <b>Bước 4:</b> Khách hàng click vào một phim
+    trong danh sách để xem chi tiết.
+end note
+
+note right of UC_DisplayMovieInfo
+    <b>Bước 5:</b> Hệ thống hiển thị thông tin
+    chi tiết về phim bao gồm:
+    - Tên phim
+    - Mô tả
+    - Thời lượng
+    - Đánh giá
+    - Ngày phát hành
+    - Thể loại
+    - Ngôn ngữ
+    - Trailer
+    - Poster
+end note
+
+note bottom of Customer
+    <b>Khách hàng</b> sử dụng chức năng này
+    để tìm kiếm và xem thông tin về các
+    bộ phim đang chiếu hoặc sắp chiếu.
+end note
+
+@enduml
+

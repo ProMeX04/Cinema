@@ -41,6 +41,43 @@ public class ShowtimeDAO {
     private static final String INSERT_SHOWTIME =
             "INSERT INTO ShowTime (startTime, endTime, status, MovieId, RoomId) VALUES (?, ?, ?, ?, ?)";
 
+    private static final String CHECK_ROOM_AVAILABILITY =
+            "SELECT COUNT(*) FROM ShowTime WHERE RoomId = ? AND status != 'Cancelled' " +
+                    "AND NOT (endTime <= ? OR startTime >= ?)";
+
+    /**
+     * Checks if a room is available for a given time slot.
+     *
+     * @param roomId room identifier
+     * @param startTime start time of the showtime
+     * @param endTime end time of the showtime
+     * @return true if room is available, false otherwise
+     */
+    public boolean isRoomAvailable(int roomId, Date startTime, Date endTime) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = DBConnection.getConnection();
+            statement = connection.prepareStatement(CHECK_ROOM_AVAILABILITY);
+            statement.setInt(1, roomId);
+            Timestamp start = new Timestamp(startTime.getTime());
+            Timestamp end = new Timestamp(endTime.getTime());
+            statement.setTimestamp(2, start);
+            statement.setTimestamp(3, end);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1) == 0;
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException("Không thể kiểm tra phòng trống", ex);
+        } finally {
+            closeResources(resultSet, statement, connection);
+        }
+        return false;
+    }
+
     /**
      * Loads current and upcoming showtimes with their movie and room metadata.
      *

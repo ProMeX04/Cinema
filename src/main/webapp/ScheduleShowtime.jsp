@@ -4,73 +4,127 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tạo lịch chiếu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Lịch Chiếu - Rạp Chiếu Phim</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/cinema-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="MainManager.jsp">Cinema Manager</a>
-        <div class="collapse navbar-collapse">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-cinema">
+    <div class="container">
+        <a class="navbar-brand" href="MainManager.jsp">
+            <i class="fas fa-user-shield me-2"></i>CINEMA MANAGER
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="showtimes">Quản lý lịch chiếu</a></li>
-                <li class="nav-item"><a class="nav-link active" href="#">Lên lịch chiếu</a></li>
+                <li class="nav-item"><a class="nav-link" href="MainManager.jsp"><i class="fas fa-home me-1"></i>Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="showtimes"><i class="fas fa-calendar-alt me-1"></i>Quản lý lịch chiếu</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#"><i class="fas fa-plus-circle me-1"></i>Tạo lịch chiếu</a></li>
             </ul>
             <form class="d-flex" method="post" action="auth">
                 <input type="hidden" name="action" value="logout">
-                <button class="btn btn-outline-light" type="submit">Đăng xuất</button>
+                <button class="btn btn-cinema-outline btn-sm" type="submit">
+                    <i class="fas fa-sign-out-alt me-1"></i>Đăng xuất
+                </button>
             </form>
         </div>
     </div>
 </nav>
-<div class="container mt-4">
-    <h2 class="mb-3">Tạo lịch chiếu mới</h2>
+
+<div class="container container-cinema">
+    <div class="row mt-4 mb-4">
+        <div class="col-12">
+            <h1 class="page-title">
+                <i class="fas fa-plus-circle me-2"></i>Tạo Lịch Chiếu Mới
+            </h1>
+        </div>
+    </div>
+
     <c:if test="${not empty successMessage}">
-        <div class="alert alert-success">${successMessage}</div>
+        <div class="alert alert-cinema-success mb-4">
+            <i class="fas fa-check-circle me-2"></i>${successMessage}
+        </div>
     </c:if>
     <c:if test="${not empty errorMessage}">
-        <div class="alert alert-danger">${errorMessage}</div>
+        <div class="alert alert-cinema-danger mb-4">
+            <i class="fas fa-exclamation-circle me-2"></i>${errorMessage}
+        </div>
     </c:if>
-    <form method="post" action="showtimes">
-        <input type="hidden" name="action" value="create">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <label for="showDate" class="form-label">Ngày chiếu</label>
-                <input type="date" class="form-control" id="showDate" name="showDate" required>
+
+    <div class="movie-detail-container">
+        <form method="post" action="showtimes">
+            <input type="hidden" name="action" value="create">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label for="showDate" class="form-label-cinema">
+                        <i class="fas fa-calendar me-1"></i>Ngày Chiếu
+                    </label>
+                    <input type="date" class="form-control form-control-cinema" id="showDate" name="showDate" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="startTime" class="form-label-cinema">
+                        <i class="fas fa-clock me-1"></i>Giờ Bắt Đầu
+                    </label>
+                    <input type="time" class="form-control form-control-cinema" id="startTime" name="startTime" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="endTime" class="form-label-cinema">
+                        <i class="fas fa-clock me-1"></i>Giờ Kết Thúc
+                    </label>
+                    <input type="time" class="form-control form-control-cinema" id="endTime" name="endTime" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="movieId" class="form-label-cinema">
+                        <i class="fas fa-film me-1"></i>Phim Đang Chiếu
+                    </label>
+                    <select class="form-select form-select-cinema" id="movieId" name="movieId" required>
+                        <option value="" disabled selected>-- Chọn phim --</option>
+                        <c:forEach items="${moviesNowShowing}" var="movie">
+                            <option value="${movie.id}">${movie.title} (${movie.status})</option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="roomId" class="form-label-cinema">
+                        <i class="fas fa-door-open me-1"></i>Phòng Trống
+                    </label>
+                    <select class="form-select form-select-cinema" id="roomId" name="roomId" required>
+                        <option value="" disabled selected>-- Chọn phòng --</option>
+                        <c:forEach items="${availableRooms}" var="room">
+                            <option value="${room.id}">
+                                ${room.name} 
+                                <c:if test="${not empty room.format}">- ${room.format}</c:if>
+                            </option>
+                        </c:forEach>
+                    </select>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label for="startTime" class="form-label">Giờ bắt đầu</label>
-                <input type="time" class="form-control" id="startTime" name="startTime" required>
+            <div class="mt-5 text-center">
+                <button type="submit" class="btn btn-cinema-primary btn-lg me-3">
+                    <i class="fas fa-check-circle me-2"></i>Xác Nhận Tạo Lịch Chiếu
+                </button>
+                <a href="showtimes" class="btn btn-cinema-outline btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                </a>
             </div>
-            <div class="col-md-4">
-                <label for="endTime" class="form-label">Giờ kết thúc</label>
-                <input type="time" class="form-control" id="endTime" name="endTime" required>
-            </div>
-            <div class="col-md-6">
-                <label for="movieId" class="form-label">Phim đang chiếu</label>
-                <select class="form-select" id="movieId" name="movieId" required>
-                    <option value="" disabled selected>Chọn phim</option>
-                    <c:forEach items="${moviesNowShowing}" var="movie">
-                        <option value="${movie.id}">${movie.title} (${movie.status})</option>
-                    </c:forEach>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label for="roomId" class="form-label">Phòng trống</label>
-                <select class="form-select" id="roomId" name="roomId" required>
-                    <option value="" disabled selected>Chọn phòng</option>
-                    <c:forEach items="${availableRooms}" var="room">
-                        <option value="${room.id}">${room.name} - ${room.format}</option>
-                    </c:forEach>
-                </select>
-            </div>
-        </div>
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary">Xác nhận Tạo lịch chiếu</button>
-            <a href="showtimes" class="btn btn-secondary">Quay lại</a>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
+
+<footer class="text-center py-4 mt-5" style="background: var(--cinema-dark-gray); border-top: 2px solid var(--cinema-red);">
+    <div class="container">
+        <p class="mb-0" style="color: var(--cinema-text-light);">
+            <i class="fas fa-film me-2" style="color: var(--cinema-gold);"></i>
+            © 2024 Rạp Chiếu Phim - Hệ Thống Quản Lý
+        </p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         fetch('movies?action=nowShowing&format=json')
@@ -95,7 +149,7 @@
                 rooms.forEach(room => {
                     const option = document.createElement('option');
                     option.value = room.id;
-                    const formatLabel = room.format ? ` (${room.format})` : '';
+                    const formatLabel = room.format ? ` - ${room.format}` : '';
                     option.textContent = `${room.name}${formatLabel}`;
                     roomSelect.appendChild(option);
                 });

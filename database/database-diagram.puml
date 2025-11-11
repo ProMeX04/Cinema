@@ -1,0 +1,237 @@
+@startuml Cinema Database Schema
+!theme plain
+skinparam roundcorner 10
+skinparam shadowing false
+
+skinparam class {
+    BackgroundColor #FFF4E6
+    BorderColor #D32F2F
+    ArrowColor #D32F2F
+    FontSize 11
+}
+
+skinparam linetype {
+    linecolor #D32F2F
+    lineweight 2
+}
+
+title Hệ Thống Quản Lý Rạp Chiếu Phim\nSơ Đồ Database (ERD)
+
+' =====================================================
+' BẢNG USER - Người dùng hệ thống
+' =====================================================
+class tblUser << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    fullName : VARCHAR(255)
+    + username : VARCHAR(255) <<UNIQUE, NOT NULL>>
+    + password : VARCHAR(255) <<NOT NULL>>
+    email : VARCHAR(255)
+    phone : VARCHAR(255)
+    role : VARCHAR(10)
+    note : VARCHAR(255)
+}
+
+' =====================================================
+' BẢNG CINEMA - Thông tin rạp chiếu phim
+' =====================================================
+class tblCinema << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    name : VARCHAR(255)
+    address : VARCHAR(255)
+    description : VARCHAR(255)
+}
+
+' =====================================================
+' BẢNG ROOM - Phòng chiếu phim
+' =====================================================
+class tblRoom << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    name : VARCHAR(255)
+    capacity : INT
+    description : VARCHAR(255)
+    format : VARCHAR(255)
+    + CinemaId : INT <<FK>>
+}
+
+' =====================================================
+' BẢNG MOVIE - Thông tin phim
+' =====================================================
+class tblMovie << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    title : VARCHAR(255)
+    description : TEXT
+    duration : FLOAT
+    rating : FLOAT
+    releaseDate : DATE
+    status : VARCHAR(255)
+    poster : VARCHAR(255)
+    trailer : VARCHAR(255)
+    genre : VARCHAR(255)
+    language : VARCHAR(255)
+}
+
+' =====================================================
+' BẢNG SHOWTIME - Lịch chiếu phim
+' =====================================================
+class tblShowTime << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    + startTime : DATETIME <<NOT NULL>>
+    + endTime : DATETIME <<NOT NULL>>
+    status : VARCHAR(255)
+    + MovieId : INT <<FK, NOT NULL>>
+    + RoomId : INT <<FK, NOT NULL>>
+}
+
+' =====================================================
+' BẢNG SEAT - Ghế ngồi trong phòng chiếu
+' =====================================================
+class tblSeat << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    position : VARCHAR(255)
+    seatType : VARCHAR(255)
+    RoomId : INT <<FK>>
+}
+
+' =====================================================
+' BẢNG ORDER - Đơn đặt vé
+' =====================================================
+class tblOrder << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    orderTime : DATETIME
+    status : VARCHAR(255)
+    total_amount : FLOAT
+    UserId : INT <<FK>>
+}
+
+' =====================================================
+' BẢNG TICKET - Vé xem phim
+' =====================================================
+class tblTicket << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    price : FLOAT
+    status : VARCHAR(255)
+    OrderId : INT <<FK>>
+    SeatId : INT <<FK>>
+    ShowTimeId : INT <<FK>>
+}
+
+' =====================================================
+' BẢNG PAYMENT - Thanh toán
+' =====================================================
+class tblPayment << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    method : VARCHAR(255)
+    amount : FLOAT
+    paidAt : DATETIME
+    status : VARCHAR(255)
+    OrderId : INT <<FK>>
+}
+
+' =====================================================
+' BẢNG MEMBERSHIPCARD - Thẻ thành viên
+' =====================================================
+class tblMembershipCard << (T,#FFAAAA) >> {
+    + **id** : INT <<PK>>
+    --
+    + cardNumber : VARCHAR(255) <<UNIQUE>>
+    issueAt : DATE
+    status : VARCHAR(255)
+    UserId : INT <<FK>>
+}
+
+' =====================================================
+' QUAN HỆ GIỮA CÁC BẢNG
+' =====================================================
+
+' Cinema -> Room (1:N) - Một rạp có nhiều phòng
+tblCinema "1" ||--o{ "N" tblRoom : "có nhiều"
+
+' Room -> Seat (1:N) - Một phòng có nhiều ghế
+tblRoom "1" ||--o{ "N" tblSeat : "có nhiều"
+
+' Movie -> ShowTime (1:N) - Một phim có nhiều lịch chiếu
+tblMovie "1" ||--o{ "N" tblShowTime : "chiếu nhiều lần"
+
+' Room -> ShowTime (1:N) - Một phòng có nhiều lịch chiếu
+tblRoom "1" ||--o{ "N" tblShowTime : "được chiếu tại"
+
+' User -> Order (1:N) - Một user có nhiều đơn hàng
+tblUser "1" ||--o{ "N" tblOrder : "đặt nhiều"
+
+' Order -> Ticket (1:N) - Một đơn hàng có nhiều vé
+tblOrder "1" ||--o{ "N" tblTicket : "bao gồm"
+
+' Seat -> Ticket (1:N) - Một ghế có thể được đặt nhiều lần
+tblSeat "1" ||--o{ "N" tblTicket : "được đặt"
+
+' ShowTime -> Ticket (1:N) - Một suất chiếu có nhiều vé
+tblShowTime "1" ||--o{ "N" tblTicket : "có nhiều vé"
+
+' Order -> Payment (1:N) - Một đơn hàng có thể có nhiều thanh toán
+tblOrder "1" ||--o{ "N" tblPayment : "thanh toán"
+
+' User -> MembershipCard (1:N) - Một user có thể có nhiều thẻ thành viên
+tblUser "1" ||--o{ "N" tblMembershipCard : "sở hữu"
+
+' =====================================================
+' GHI CHÚ VÀ MÔ TẢ
+' =====================================================
+
+note right of tblUser
+    <b>Vai trò (role):</b>
+    • Manager: Nhân viên quản lý
+    • Cashier: Nhân viên bán hàng
+    • Customer: Khách hàng
+end note
+
+note right of tblMovie
+    <b>Trạng thái (status):</b>
+    • Now Showing: Đang chiếu
+    • Coming Soon: Sắp chiếu
+end note
+
+note right of tblShowTime
+    <b>Trạng thái (status):</b>
+    • Scheduled: Đã lên lịch
+    • Cancelled: Đã hủy
+    • Completed: Đã hoàn thành
+end note
+
+note right of tblOrder
+    <b>Trạng thái (status):</b>
+    • Pending: Chờ xử lý
+    • Completed: Hoàn thành
+    • Cancelled: Đã hủy
+end note
+
+note right of tblTicket
+    <b>Trạng thái (status):</b>
+    • Issued: Đã phát hành
+    • Used: Đã sử dụng
+    • Cancelled: Đã hủy
+end note
+
+note right of tblPayment
+    <b>Phương thức (method):</b>
+    • Credit Card: Thẻ tín dụng
+    • Cash: Tiền mặt
+    • Bank Transfer: Chuyển khoản
+end note
+
+note right of tblMembershipCard
+    <b>Trạng thái (status):</b>
+    • Active: Đang hoạt động
+    • Expired: Đã hết hạn
+    • Suspended: Tạm ngưng
+end note
+
+@enduml
