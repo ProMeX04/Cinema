@@ -4,3 +4,4 @@ database/
 .idea/
 .env
 src/target/
+.DS_Store
