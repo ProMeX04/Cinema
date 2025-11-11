@@ -1,3 +1,6 @@
 report/
 database/
 .vscode/
+.idea/
+.env
+src/target/
